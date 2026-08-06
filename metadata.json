@@ -1,0 +1,6 @@
+{
+  "name": "CampusConnect",
+  "description": "A Localized Skill-Trade & Micro-Task Marketplace for students with AI-powered document verification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
