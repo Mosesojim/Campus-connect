@@ -28,8 +28,8 @@ function getSupabase() {
 }
 
 
-async function startServer() {
-  const app = express();
+const app = express();
+
   app.use(compression());
   const PORT = 3000;
 
@@ -103,7 +103,21 @@ async function startServer() {
         return res.status(400).json({ error: error.message });
       }
 
+
+      if (data && data.user && role === 'provider') {
+        const { error: insertError } = await supabase.from('providers').insert([{
+          email: email,
+          full_name: fullName,
+          state: state,
+          university: university,
+          services: {}
+        }]);
+        if (insertError) {
+          console.warn("Failed to insert provider profile during signup:", insertError.message);
+        }
+      }
       res.json({ message: "Account created successfully!" });
+
     } catch (err: any) {
       console.error(err);
       res.status(500).json({ error: err.message || "Internal server error" });
@@ -530,6 +544,9 @@ async function startServer() {
     }
   });
 
+  
+async function startServer() {
+  const PORT = 3000;
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
@@ -552,4 +569,11 @@ async function startServer() {
   });
 }
 
-startServer();
+
+
+
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
