@@ -148,15 +148,21 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/";
   });
   document.getElementById("mobile-search")?.addEventListener("click", () => {
-    window.location.href = "profile.html#/services";
+    window.location.hash = "#hero";
+    setTimeout(() => {
+      document.getElementById("searchInput")?.focus();
+    }, 100);
   });
   document.getElementById("mobile-post")?.addEventListener("click", () => {
+    document.getElementById("mobile-post").innerHTML = '<div class="w-6 h-6 mb-1 rounded-full border-2 border-orange-500 border-t-transparent animate-spin"></div><span class="text-[10px] font-medium">Loading</span>';
     window.location.href = "profile.html#/post-service";
   });
   document.getElementById("mobile-requests")?.addEventListener("click", () => {
+    document.getElementById("mobile-requests").innerHTML = '<div class="w-6 h-6 mb-1 rounded-full border-2 border-orange-500 border-t-transparent animate-spin"></div><span class="text-[10px] font-medium">Loading</span>';
     window.location.href = "profile.html#/requests";
   });
   document.getElementById("mobile-profile")?.addEventListener("click", () => {
+    document.getElementById("mobile-profile").innerHTML = '<div class="w-6 h-6 mb-1 rounded-full border-2 border-orange-500 border-t-transparent animate-spin"></div><span class="text-[10px] font-medium">Loading</span>';
     window.location.href = "profile.html#/profile";
   });
 
@@ -645,7 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mutationObserver.observe(document.body, { childList: true, subtree: true });
 });
 
-document.addEventListener("DOMContentLoaded", updateAuthUI);
+document.addEventListener('DOMContentLoaded', () => { updateAuthUI(); });
 
 updateAuthUI();
 
@@ -1043,7 +1049,50 @@ function renderProviders(providers) {
       const matchLoc = !loc || (p.location||'').includes(loc) || (p.state||'').includes(loc) || (p.university||'').includes(loc);
       return matchQ && matchLoc;
    });
-   renderProviders(filtered);
+   
+   const container = document.getElementById("searchResultsContainer");
+   const countEl = document.getElementById("searchResultsCount");
+   const noResults = document.getElementById("noResultsNotice");
+
+   if (countEl) {
+     countEl.textContent = `Found ${filtered.length} provider(s)`;
+   }
+
+   if (filtered.length === 0) {
+      if (container) container.innerHTML = '';
+      if (noResults) {
+        noResults.classList.remove("hidden");
+        noResults.classList.add("flex");
+      }
+   } else {
+      if (noResults) {
+        noResults.classList.add("hidden");
+        noResults.classList.remove("flex");
+      }
+      if (container) {
+          container.innerHTML = filtered.map(p => { 
+             return `
+              <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group cursor-pointer" onclick="showProfileForUser('${p.email}')">
+                 <div class="h-32 bg-gray-200 dark:bg-gray-700 relative bg-cover bg-center" style="background-image: url('${p.cover_url || p.cover_image || ''}')">
+                    <div class="absolute -bottom-10 left-6">
+                      <div class="w-20 h-20 rounded-2xl border-4 border-white dark:border-gray-800 overflow-hidden bg-gray-100 dark:bg-gray-700">
+                         <img src="${p.avatar_url || p.profile_image || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                 </div>
+                 <div class="pt-14 p-6">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                      ${p.full_name}
+                      ${p.is_verified ? `<svg class="w-5 h-5 text-blue-500 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` : ''}
+                    </h3>
+                    <p class="text-orange-600 dark:text-orange-400 font-medium text-sm mt-1">${p.service_title || 'Provider'}</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mt-3 line-clamp-2">${p.bio || 'No bio available.'}</p>
+                 </div>
+              </div>
+             `;
+          }).join('');
+      }
+   }
 }
 
 document.addEventListener("DOMContentLoaded", fetchAndRenderProviders);
@@ -1266,16 +1315,18 @@ const searchInput = document.getElementById("searchInput") as HTMLInputElement;
 const quickSearchTags = document.querySelectorAll(".quick-search-tag");
 
 searchBtn?.addEventListener("click", () => {
-  if (searchInput) {
-    // performSearch(searchInput.value);
-  } else {
-    // performSearch("");
+  window.location.hash = "#search";
+  if ((window as any).searchProviders) {
+    (window as any).searchProviders();
   }
 });
 
 searchInput?.addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
-    // performSearch(searchInput.value);
+    window.location.hash = "#search";
+    if ((window as any).searchProviders) {
+      (window as any).searchProviders();
+    }
   }
 });
 
@@ -1284,7 +1335,10 @@ quickSearchTags.forEach((tag) => {
     e.preventDefault();
     const query = tag.textContent || "";
     if (searchInput) searchInput.value = query;
-    // performSearch(query);
+    window.location.hash = "#search";
+    if ((window as any).searchProviders) {
+      (window as any).searchProviders();
+    }
   });
 });
 
@@ -1508,3 +1562,49 @@ if (navSearchForm) {
     }
   });
 }
+
+// Fallback to ensure auth UI is updated if DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { updateAuthUI(); });
+} else {
+  updateAuthUI();
+}
+
+window.addEventListener("hashchange", () => {
+  const hash = window.location.hash;
+  const homeBtn = document.getElementById("mobile-home");
+  const searchBtn = document.getElementById("mobile-search");
+  
+  if (homeBtn && searchBtn) {
+    if (hash === "#search") {
+      homeBtn.className = "flex flex-col items-center p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white";
+      searchBtn.className = "flex flex-col items-center p-2 text-orange-600";
+    } else {
+      homeBtn.className = "flex flex-col items-center p-2 text-orange-600";
+      searchBtn.className = "flex flex-col items-center p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white";
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("search") === "true") {
+    window.location.hash = "#search";
+    setTimeout(() => {
+      document.getElementById("searchInput")?.focus();
+      if ((window as any).searchProviders) {
+        (window as any).searchProviders();
+      }
+    }, 500);
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("backFromSearchBtn")?.addEventListener("click", () => {
+    window.location.hash = "#";
+    const mainInput = document.getElementById("searchInput") as HTMLInputElement;
+    if (mainInput) mainInput.value = "";
+    const navInput = document.getElementById("navSearchInput") as HTMLInputElement;
+    if (navInput) navInput.value = "";
+  });
+});

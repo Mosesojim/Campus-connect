@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
+    <script type="module" src="/@vite/client"></script>
+
     <base href="/" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -556,7 +558,7 @@
       >
         <!-- Background Image with Overlay -->
         <div
-          class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center bg-fixed z-0 opacity-40 dark:opacity-20"
+          class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center bg-fixed z-0 opacity-40 dark:opacity-20"
         ></div>
         <div
           class="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm z-0"
@@ -945,7 +947,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <!-- Hair & Beauty -->
           <div
-            class="relative p-6 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer text-left overflow-hidden bg-cover bg-center flex flex-col justify-between min-h-[160px] group border border-gray-100" style="background-image: url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80');">
+            class="relative p-6 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer text-left overflow-hidden bg-cover bg-center flex flex-col justify-between min-h-[160px] group border border-gray-100" style="background-image: url('https://images.unsplash.com/photo-1522337360788-8b13fee7f348?auto=format&fit=crop&w=800&q=80');">
             <div
               class="absolute inset-0 bg-gray-900/60 group-hover:bg-gray-900/50 transition"
             ></div>
@@ -978,7 +980,7 @@
 
           <!-- Gadget Repair -->
           <div
-            class="relative p-6 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer text-left overflow-hidden bg-cover bg-center flex flex-col justify-between min-h-[160px] group border border-gray-100" style="background-image: url('https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80');">
+            class="relative p-6 rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer text-left overflow-hidden bg-cover bg-center flex flex-col justify-between min-h-[160px] group border border-gray-100" style="background-image: url('https://images.unsplash.com/photo-1581092921461-7031e4bf0e11?auto=format&fit=crop&w=800&q=80');">
             <div
               class="absolute inset-0 bg-gray-900/60 group-hover:bg-gray-900/50 transition"
             ></div>

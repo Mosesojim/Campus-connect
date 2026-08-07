@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import express from "express";
+import compression from "compression";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
 
@@ -26,8 +27,10 @@ function getSupabase() {
   return supabaseClient;
 }
 
+
 async function startServer() {
   const app = express();
+  app.use(compression());
   const PORT = 3000;
 
   // Middleware to parse JSON
@@ -348,12 +351,7 @@ async function startServer() {
         .order('created_at', { ascending: false });
         
       if (error) {
-        if (error.code === 'PGRST205' || error.message.includes('schema cache') || error.message.includes('find the table')) {
-            console.warn("client_requests table does not exist yet.");
-            return res.json([]);
-        }
-        console.warn("client_requests table query error:", error.message);
-        return res.json([]);
+        throw error;
       }
       res.json(data || []);
     } catch (err) {
@@ -372,12 +370,7 @@ async function startServer() {
         .order('created_at', { ascending: false });
         
       if (error) {
-        if (error.code === 'PGRST205' || error.message.includes('schema cache') || error.message.includes('find the table')) {
-            console.warn("client_requests table does not exist yet.");
-            return res.json([]);
-        }
-        console.warn("client_requests table query error:", error.message);
-        return res.json([]);
+        throw error;
       }
       res.json(data || []);
     } catch (err) {
@@ -397,10 +390,6 @@ async function startServer() {
         .eq('id', id);
         
       if (error) {
-         if (error.code === 'PGRST205' || error.message.includes('schema cache') || error.message.includes('find the table')) {
-            console.warn("client_requests table does not exist yet. Mocking success.");
-            return res.json({ success: true, message: "Request sent successfully (Table missing)" });
-         }
          throw error;
       }
       res.json({ success: true });
@@ -429,10 +418,6 @@ async function startServer() {
         .insert([newReq]);
         
       if (error) {
-         if (error.code === 'PGRST205' || error.message.includes('schema cache') || error.message.includes('find the table')) {
-            console.warn("client_requests table does not exist yet. Mocking success.");
-            return res.json({ success: true });
-         }
          throw error;
       }
       res.json({ success: true, message: "Request sent successfully" });
@@ -440,8 +425,6 @@ async function startServer() {
       res.status(500).json({ error: e.message });
     }
   });
-
-
 
   app.get("/api/providers", async (req, res) => {
     try {

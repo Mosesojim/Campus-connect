@@ -162,6 +162,7 @@ export function updateAuthUI() {
 
     // Fetch Notifications
     const isProvider = user.role === 'provider';
+    if (!user.email) return;
     const endpoint = isProvider ? `/api/client-requests/${user.email}` : `/api/my-requests/${user.email}`;
     
     fetch(endpoint)

@@ -491,7 +491,7 @@ async function renderProviderView(id: string) {
       
       <div class="flex flex-col items-center text-center">
         <div class="w-24 h-24 bg-gray-200 rounded-full mb-4 overflow-hidden shadow-sm">
-          <img src="https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover">
         </div>
         <h1 class="font-bold text-2xl text-gray-900 dark:text-white capitalize">${id.replace("-", " ")}</h1>
         <p class="text-orange-600 dark:text-orange-400 font-medium mb-4">Top Rated Provider</p>
@@ -748,20 +748,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Fetch full profile from backend to get images and fresh data
-  try {
-    const res = await fetch(`/api/provider/${user.email}`);
+  // Fetch full profile from backend to get images and fresh data (non-blocking)
+  fetch(`/api/provider/${user.email}`).then(async (res) => {
     if (res.ok) {
       const dbUser = await res.json();
       if (dbUser && dbUser.email) {
         Object.assign(user, dbUser);
         if (dbUser.profile_image) user.profile_image = dbUser.profile_image;
         if (dbUser.cover_image) user.cover_image = dbUser.cover_image;
+        setCurrentUser(user); // Optional: save updated to local storage
       }
     }
-  } catch (err) {
+  }).catch(err => {
     console.error("Error fetching fresh profile:", err);
-  }
+  });
 
   function handleRoute() {
     const hash = window.location.hash || "#/profile";
@@ -837,13 +837,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Mobile bottom tabs
   document.getElementById("mobile-home")?.addEventListener("click", () => {
+    document.getElementById("mobile-home").innerHTML = '<div class="w-6 h-6 mb-1 rounded-full border-2 border-orange-500 border-t-transparent animate-spin"></div><span class="text-[10px] font-medium">Loading</span>';
     window.location.href = "/";
   });
   document.getElementById("mobile-search")?.addEventListener("click", () => {
     window.location.href = "/#search";
   });
   document.getElementById("mobile-post")?.addEventListener("click", () => {
-    window.location.href = "/#post";
+    const user = getCurrentUser();
+    if (user?.role === 'provider') {
+      window.location.hash = '#/my-services';
+    } else {
+      window.location.hash = '#/requests';
+    }
   });
   document.getElementById("mobile-requests")?.addEventListener("click", () => {
     window.location.hash = "#/requests";
@@ -891,3 +897,29 @@ if (themeToggleBtn) {
     updateThemeUI(newDark);
   });
 }
+
+function updateProfileMobileNav() {
+  const hash = window.location.hash;
+  const btns = {
+    "/post-service": document.getElementById("mobile-post"),
+    "/requests": document.getElementById("mobile-requests"),
+    "/client-requests": document.getElementById("mobile-requests"),
+    "/profile": document.getElementById("mobile-profile"),
+    "/services": document.getElementById("mobile-profile") // fallback?
+  };
+  
+  // reset all
+  Object.values(btns).forEach(btn => {
+    if (btn) btn.className = "flex flex-col items-center p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white";
+  });
+  
+  if (hash.includes("/post-service") && btns["/post-service"]) {
+    btns["/post-service"].className = "flex flex-col items-center p-2 text-orange-600";
+  } else if ((hash.includes("/requests") || hash.includes("/client-requests")) && btns["/requests"]) {
+    btns["/requests"].className = "flex flex-col items-center p-2 text-orange-600";
+  } else if (btns["/profile"]) {
+    btns["/profile"].className = "flex flex-col items-center p-2 text-orange-600";
+  }
+}
+window.addEventListener("hashchange", updateProfileMobileNav);
+document.addEventListener("DOMContentLoaded", updateProfileMobileNav);
