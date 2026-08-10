@@ -1,3 +1,4 @@
+import { supabase } from "./lib/supabase.ts";
 import { updateAuthUI, getCurrentUser, setCurrentUser } from "./auth";
 
 function showToast(message, type = "success") {
@@ -404,33 +405,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = (document.getElementById("password") as HTMLInputElement)
         ?.value;
 
-      fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-        .then(async (res) => {
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || "Server error");
-          return data;
-        })
-        .then((data) => {
+      supabase.auth.signInWithPassword({ email, password })
+        .then(({ data, error }) => {
+          if (error) {
+            throw error;
+          }
           submitBtn.disabled = false;
           setBtnLoading(submitBtn as HTMLButtonElement, false, "Login");
           closeModal();
-          showToast(data.message || "Login successful!", "success");
-          const userFullName =
-            data.session?.user?.user_metadata?.full_name || "User";
-          const role = data.session?.user?.user_metadata?.role || "client";
-          const isVerified =
-            data.session?.user?.user_metadata?.is_verified || false;
+          showToast("Login successful!", "success");
+          
+          const userFullName = data.user?.user_metadata?.full_name || "User";
+          const role = data.user?.user_metadata?.role || "client";
+          const isVerified = data.user?.user_metadata?.is_verified || false;
+          
           try {
-            setCurrentUser({ fullName: userFullName, email, role, isVerified });
+            setCurrentUser({ fullName: userFullName, email, role, isVerified, session: data.session });
             syncUserToDB({ fullName: userFullName, email, role, isVerified });
             updateAuthUI();
             window.location.reload();
-          } catch (error) {
-            console.error("Storage error:", error);
+          } catch (e) {
+            console.error("Storage error:", e);
           }
         })
         .catch((err) => {
@@ -478,53 +473,37 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("signupUniversity") as HTMLInputElement
     )?.value;
 
-    fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        password,
-        fullName,
-        matricNumber,
-        role: selectedRole,
-        state,
-        university,
-      }),
+    supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          matric_number: matricNumber,
+          role: selectedRole,
+          state,
+          university,
+          is_verified: false,
+        }
+      }
     })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Server error");
-        return data;
-      })
-      .then((data) => {
+      .then(({ data, error }) => {
+        if (error) throw error;
         submitBtn.disabled = false;
         setBtnLoading(submitBtn as HTMLButtonElement, false, "Create Account");
-
-        if (data.notice) {
-          showToast(data.message, "success");
-          const tabLogin = document.getElementById("tabLogin");
-          if (tabLogin) tabLogin.click();
+        
+        closeModal();
+        if (data.session) {
+           showToast("Account created successfully!", "success");
+           setCurrentUser({ fullName, email, role: selectedRole, isVerified: false, session: data.session });
+           syncUserToDB({ fullName, email, role: selectedRole, isVerified: false });
+           updateAuthUI();
+           window.location.reload();
         } else {
-          closeModal();
-          showToast(data.message || "Account created successfully!", "success");
-          setCurrentUser({
-            fullName,
-            email,
-            role: selectedRole,
-            isVerified: false,
-          });
-          syncUserToDB({
-            fullName,
-            email,
-            role: selectedRole,
-            isVerified: false,
-          });
-          updateAuthUI();
-          window.location.reload();
+           showToast("Account created! Please verify your email.", "success");
         }
       })
       .catch((err) => {
-        console.error(err);
         submitBtn.disabled = false;
         setBtnLoading(submitBtn as HTMLButtonElement, false, "Create Account");
         const authNotice = document.getElementById("authNotice");
@@ -1608,3 +1587,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (navInput) navInput.value = "";
   });
 });
+// trigger change
