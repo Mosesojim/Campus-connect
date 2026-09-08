@@ -446,7 +446,7 @@ apiRouter.get("/health", (req, res) => {
       const supabase = getSupabase();
 
       // Attempt to fetch from a 'providers' table in Supabase
-      const { data, error } = await supabase.from("providers").select("*").eq("role", "provider");
+      const { data, error } = await supabase.from("providers").select("id, email, full_name, role, service_title, bio, services, availability, cover_url, avatar_url, is_verified, created_at, state, university, skill, location, contact").eq("role", "provider");
 
       if (error) {
         if (error.message && error.message.includes("timeout")) {

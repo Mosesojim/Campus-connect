@@ -19,13 +19,13 @@ async function startServer() {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: "spa",
+      appType: "mpa",
     });
     app.use(vite.middlewares);
   } else {
     // Serve static files in production
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    app.use(express.static(distPath, { extensions: ["html"] }));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });

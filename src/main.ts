@@ -430,6 +430,9 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((err) => {
           console.error(err);
+          if (err.message === "Failed to fetch") {
+            showToast("Network error: Your Supabase project might be paused. Please unpause it in your Supabase dashboard.", "error");
+          }
           submitBtn.disabled = false;
           setBtnLoading(submitBtn as HTMLButtonElement, false, "Login");
           const authNotice = document.getElementById("authNotice");
@@ -984,8 +987,11 @@ async function fetchAndRenderProviders() {
       (window as any).globalProviders = providers;
       renderProviders(providers);
     }
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error("Error fetching providers", err);
+    if (err.message === "Failed to fetch") {
+       console.error("Providers table query failed. Your Supabase project might be paused or cold-starting.");
+    }
   }
 }
 

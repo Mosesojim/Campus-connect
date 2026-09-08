@@ -79,7 +79,7 @@ function renderClientProfile(user: any) {
             Looking for services
           </span>
         </div>
-        <button onclick="window.location.assign('/settings')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl transition-colors shadow-sm whitespace-nowrap ml-4">
+        <button onclick="window.navigate('/settings')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl transition-colors shadow-sm whitespace-nowrap ml-4">
           Edit Profile
         </button>
       </div>
@@ -143,7 +143,7 @@ function renderProviderProfile(user: any) {
                 ${user.availability || "Available"}
               </span>
             </div>
-            <button onclick="window.location.assign('/settings')" class="px-5 py-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 text-sm font-bold rounded-xl transition-colors shadow-sm whitespace-nowrap">
+            <button onclick="window.navigate('/settings')" class="px-5 py-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 text-sm font-bold rounded-xl transition-colors shadow-sm whitespace-nowrap">
               Edit Profile
             </button>
           </div>
@@ -196,7 +196,7 @@ function renderProviderProfile(user: any) {
                 ? `
               <div class="text-center py-8">
                 <p class="text-gray-500 mb-4">You haven't added any services yet.</p>
-                <button onclick="window.location.assign('/my-services')" class="px-5 py-2.5 bg-orange-50 text-orange-600 font-bold rounded-xl hover:bg-orange-100 transition text-sm">
+                <button onclick="window.navigate('/my-services')" class="px-5 py-2.5 bg-orange-50 text-orange-600 font-bold rounded-xl hover:bg-orange-100 transition text-sm">
                   Add Service
                 </button>
               </div>
@@ -469,7 +469,7 @@ async function renderSettings(user: any) {
         });
         if (res.ok) {
           showToast("Settings saved successfully", "success");
-          window.location.assign("/profile");
+          window.navigate('/profile');
         } else {
           showToast("Failed to save settings", "error");
         }
@@ -484,7 +484,7 @@ async function renderProviderView(id: string) {
   if (!app) return;
   app.innerHTML = `
     <section class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <button onclick="window.location.assign('/requests')" class="flex items-center text-gray-500 hover:text-gray-900 mb-6 font-medium transition text-sm">
+      <button onclick="window.navigate('/requests')" class="flex items-center text-gray-500 hover:text-gray-900 mb-6 font-medium transition text-sm">
         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         Back to Requests
       </button>
