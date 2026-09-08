@@ -668,7 +668,7 @@ async function renderClientRequests(user: any) {
     const title = isProvider ? 'Client Requests' : 'My Requests';
     
     const res = await fetch(endpoint);
-    const requests = await res.json();
+    if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`); const requests = await res.json();
 
     if (!requests || !Array.isArray(requests) || requests.length === 0) {
       mainContent.innerHTML = `
@@ -716,7 +716,7 @@ async function renderClientRequests(user: any) {
       </div>
     `;
   } catch (err) {
-    mainContent.innerHTML = `<div class="p-8 text-center text-red-500">Error loading requests.</div>`;
+    console.error(err); mainContent.innerHTML = `<div class="p-8 text-center text-red-500">Error loading requests: ${err.message}</div>`;
   }
 }
 
